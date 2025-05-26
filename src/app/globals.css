@@ -1,14 +1,8 @@
 :root {
   --background: rgba(15, 19, 20, .9);
-  --foreground: #171717;
+--foreground: #ededed;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: rgba(15, 19, 20, .9);
-    --foreground: #ededed;
-  }
-}
 
 html,
 body {

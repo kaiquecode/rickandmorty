@@ -193,7 +193,7 @@ export default function Home() {
           <Swiper
             modules={[EffectCoverflow]}
             effect="coverflow"
-            spaceBetween={20}
+            spaceBetween={30}
             style={{ padding: "2rem 0" }}
             slideToClickedSlide={true}
             grabCursor={true}
