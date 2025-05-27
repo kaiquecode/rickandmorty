@@ -2,14 +2,15 @@
 
 import { Character } from "@/app/types";
 import { getStatusName, hexToRgb } from "@/app/utils/functions";
-import { Box, Divider, Grid, styled, Typography } from "@mui/material";
+import { Box, Divider, Grid, Link, styled, Typography } from "@mui/material";
 import { FastAverageColor } from "fast-average-color";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
-import { EffectCoverflow, FreeMode, Navigation, Thumbs } from "swiper/modules";
+import { EffectCoverflow, EffectCube, FreeMode, Navigation, Thumbs } from "swiper/modules";
 
 import 'swiper/css';
 import 'swiper/css/effect-coverflow';
+import 'swiper/css/effect-cube';
 import 'swiper/css/free-mode';
 import 'swiper/css/navigation';
 import 'swiper/css/thumbs';
@@ -202,12 +203,12 @@ export default function Home() {
             Cada personagem vem com uma breve descrição, sprite personalizado e, claro, uma pitada generosa de loucura sci-fi.
           </Typography>
         </Box>
-        <Box sx={{ padding: "2rem", backgroundImage: `linear-gradient(0deg, transparent, ${rgbaByHex(characterProperties.color, .1)} 10%, rgba(21, 22, 34, 1) 60%)` }}>
+        <Box sx={{ padding: "2rem", backgroundImage: `linear-gradient(0deg, transparent, ${rgbaByHex(characterProperties.color, .1)} 10%, transparent 60%)` }}>
           <Swiper
             modules={[EffectCoverflow]}
             effect="coverflow"
             spaceBetween={30}
-            style={{ padding: "2rem 0" }}
+            style={{ padding: "2rem 0", userSelect: "none" }}
             grabCursor={true}
             centeredSlides={true}
             slidesPerView={5}
@@ -270,30 +271,20 @@ export default function Home() {
             {charactersArr}
           </Swiper>
         </Box>
-        <Box p={"2rem"}>
+        <Box p={"2rem"} sx={{ backgroundColor: "rgba(21, 22, 34, 1)" }}>
           <Grid container alignItems={"center"} justifyContent={"center"}>
             <Grid size={{ md: 6 }}>
               <Swiper
-                spaceBetween={10}
-                modules={[FreeMode, Thumbs]}
-                thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
-                style={{ height: "400px" }}
-              >
-                {
-                  Array.from({ length: 35 }).map((_, index) => {
-                    return <SwiperSlide key={index} className="img">
-                      <img src={`/assets/images/gallery/${index + 1}.webp`} />
-                    </SwiperSlide>
-                  })
-                }
-              </Swiper>
-              <Swiper
-                spaceBetween={10}
-                onSwiper={setThumbsSwiper}
-                slidesPerView={4}
-                navigation={true}
-                modules={[FreeMode, Navigation, Thumbs]}
-                style={{ height: "200px", marginTop: "1rem" }}
+                effect="cube"
+                thumbs={{ swiper: thumbsSwiper }}
+                modules={[FreeMode, EffectCube, Thumbs]}
+                cubeEffect={{
+                  shadow: true,
+                  slideShadows: true,
+                  shadowOffset: 20,
+                  shadowScale: 0.94
+                }}
+                style={{ width: "400px", userSelect: "none" }}
               >
                 {
                   Array.from({ length: 35 }).map((_, index) => {
@@ -316,11 +307,28 @@ export default function Home() {
                 Se você é fã do estilo visual da série, vai se sentir em casa aqui. Aproveite a viagem!
               </Typography>
             </Grid>
-
+            <Grid size={{ md: 12 }} mt={"2rem"} textAlign={"center"}>
+              <Swiper
+                spaceBetween={10}
+                onSwiper={setThumbsSwiper}
+                slidesPerView={6}
+                navigation={true}
+                modules={[FreeMode, Navigation, Thumbs]}
+                style={{ height: "200px", marginTop: "1rem", userSelect: "none" }}
+              >
+                {
+                  Array.from({ length: 35 }).map((_, index) => {
+                    return <SwiperSlide key={index} className="img">
+                      <img src={`/assets/images/gallery/${index + 1}.webp`} />
+                    </SwiperSlide>
+                  })
+                }
+              </Swiper>
+            </Grid>
           </Grid>
         </Box>
-        <Box p={"2rem"}>
-          <Grid container>
+        <Box p={"2rem"} mt={"4rem"} sx={{ backgroundColor: "#151622" }}>
+          <Grid container alignItems={"center"} justifyContent={"center"} >
             <Grid size={{ md: 6 }}>
               <Typography textAlign={"center"} variant="h2" fontFamily={"Orbitron, sans-serif"} fontSize={"2rem"} fontWeight={600}>Sobre o Projeto</Typography>
               <Typography mt={2}>
@@ -337,6 +345,12 @@ export default function Home() {
               <img src="/assets/images/about_side_2.webp" style={{ width: "100%" }} />
             </Grid>
           </Grid>
+        </Box>
+      </Box>
+      <Box component={"footer"} sx={{ backgroundColor: "var(--window-background)", padding: "2rem" }}>
+        <Box textAlign={"center"}>
+          <Typography textAlign={"center"} variant="h2" fontFamily={"Orbitron, sans-serif"} fontSize={"2rem"} fontWeight={600}>Desenvolvido por</Typography>
+          <Typography textAlign={"center"} mt={2} fontSize={"1.2rem"} fontWeight={600}>Kaique Fabricio ❤️ <Link href="https://github.com/Pitho951/rickandmorty">Ver Repositório</Link></Typography>
         </Box>
       </Box>
     </React.Fragment >
