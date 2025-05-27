@@ -1,16 +1,21 @@
 'use client';
 
 import { Character } from "@/app/types";
-import { getStatusName } from "@/app/utils/functions";
-import { Box, Divider, styled, Typography } from "@mui/material";
+import { getStatusName, hexToRgb } from "@/app/utils/functions";
+import { Box, Divider, Grid, styled, Typography } from "@mui/material";
 import { FastAverageColor } from "fast-average-color";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Swiper, SwiperSlide } from "swiper/react";
-import { EffectCoverflow } from "swiper/modules";
+import { EffectCoverflow, FreeMode, Navigation, Thumbs } from "swiper/modules";
 
 import 'swiper/css';
 import 'swiper/css/effect-coverflow';
+import 'swiper/css/free-mode';
+import 'swiper/css/navigation';
+import 'swiper/css/thumbs';
+
+import { Swiper, SwiperClass, SwiperSlide } from "swiper/react";
+
 
 const ImageTitle = styled("img")(({ }) => ({
   height: "6.25rem",
@@ -101,8 +106,15 @@ const TypographyCharacterDescription = styled(Typography)(({ color }) => ({
 }));
 
 export default function Home() {
+  const [thumbsSwiper, setThumbsSwiper] = useState<SwiperClass | null>(null);
+  const [characterProperties, setCharacterProperties] = useState<{ color: string, index: number }>({ color: "#151622", index: 0 });
   const [characters, setCharacters] = useState<Map<number, (Character & { color: string })>>(new Map);
   const [page, setPage] = useState<number>(1);
+
+  const rgbaByHex = (hex: string, alpha: number = 1) => {
+    const { r, g, b } = hexToRgb(hex);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
 
   const fetchCharacters = useCallback(async () => {
     const draftMap = characters;
@@ -122,6 +134,7 @@ export default function Home() {
 
     setCharacters(new Map(draftMap));
   }, [page]);
+
 
   const charactersArr = useMemo(() => {
     return Array.from(characters.values()).map(character => {
@@ -180,7 +193,7 @@ export default function Home() {
         </Box>
       </Header>
       <Box component={"main"} sx={{ backgroundColor: "var(--window-background)" }}>
-        <Box my="2rem">
+        <Box p="2rem">
           <Typography textAlign={"center"} variant="h2" fontFamily={"Orbitron, sans-serif"} fontSize={"2rem"} fontWeight={600}>Personagens do Multiverso</Typography>
           <Typography textAlign={"center"} mt={2}>
             Prepare-se para conhecer os personagens mais icônicos (e bizarros) do universo de Rick and Morty — todos reunidos em um só lugar!<br />
@@ -189,13 +202,12 @@ export default function Home() {
             Cada personagem vem com uma breve descrição, sprite personalizado e, claro, uma pitada generosa de loucura sci-fi.
           </Typography>
         </Box>
-        <Box sx={{ background: "rgb(27, 25, 48, .5)", padding: "2rem", }}>
+        <Box sx={{ padding: "2rem", backgroundImage: `linear-gradient(0deg, transparent, ${rgbaByHex(characterProperties.color, .1)} 10%, rgba(21, 22, 34, 1) 60%)` }}>
           <Swiper
             modules={[EffectCoverflow]}
             effect="coverflow"
             spaceBetween={30}
             style={{ padding: "2rem 0" }}
-            slideToClickedSlide={true}
             grabCursor={true}
             centeredSlides={true}
             slidesPerView={5}
@@ -204,10 +216,35 @@ export default function Home() {
               rotate: 20,
               stretch: 0,
               depth: 300,
-              slideShadows: true,
-              scale: 1
+              slideShadows: true
+            }}
+            breakpoints={{
+              320: {
+                slidesPerView: 1,
+                spaceBetween: 10
+              },
+              640: {
+                slidesPerView: 2,
+                spaceBetween: 20
+              },
+              768: {
+                slidesPerView: 3,
+                spaceBetween: 30
+              },
+              1024: {
+                slidesPerView: 4,
+                spaceBetween: 40
+              },
+              1280: {
+                slidesPerView: 5,
+                spaceBetween: 50
+              }
             }}
             onActiveIndexChange={async (swiper) => {
+              setCharacterProperties({
+                color: characters.get(swiper.activeIndex + 1)?.color || "#151622",
+                index: (swiper.activeIndex + 1)
+              });
               if ((charactersArr.length - (swiper.activeIndex + 1)) < 10 && charactersArr.length > 0) {
                 const nextPage = page + 1;
                 setPage(nextPage);
@@ -232,6 +269,74 @@ export default function Home() {
           >
             {charactersArr}
           </Swiper>
+        </Box>
+        <Box p={"2rem"}>
+          <Grid container alignItems={"center"} justifyContent={"center"}>
+            <Grid size={{ md: 6 }}>
+              <Swiper
+                spaceBetween={10}
+                modules={[FreeMode, Thumbs]}
+                thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
+                style={{ height: "400px" }}
+              >
+                {
+                  Array.from({ length: 35 }).map((_, index) => {
+                    return <SwiperSlide key={index} className="img">
+                      <img src={`/assets/images/gallery/${index + 1}.webp`} />
+                    </SwiperSlide>
+                  })
+                }
+              </Swiper>
+              <Swiper
+                spaceBetween={10}
+                onSwiper={setThumbsSwiper}
+                slidesPerView={4}
+                navigation={true}
+                modules={[FreeMode, Navigation, Thumbs]}
+                style={{ height: "200px", marginTop: "1rem" }}
+              >
+                {
+                  Array.from({ length: 35 }).map((_, index) => {
+                    return <SwiperSlide key={index} className="img">
+                      <img src={`/assets/images/gallery/${index + 1}.webp`} />
+                    </SwiperSlide>
+                  })
+                }
+              </Swiper>
+            </Grid>
+            <Grid size={{ md: 6 }} p={"2rem"}>
+              <Typography textAlign={"center"} variant="h2" fontFamily={"Orbitron, sans-serif"} fontSize={"2rem"} fontWeight={600} mb={"6.25rem"}>Galeria Interdimensional</Typography>
+              <Typography mt={2} textAlign={"center"}>
+                Explore a galeria visual do universo de Rick and Morty! Aqui você encontrará imagens estilizadas dos personagens, locais e criaturas mais icônicos da série, tudo reunido em um só lugar.
+              </Typography>
+              <Typography mt={2} textAlign={"center"}>
+                Deslize pelos cards, mergulhe em cenas malucas de diferentes dimensões e veja o multiverso ganhar vida com artes vibrantes e cheias de personalidade. A galeria também conta com imagens exclusivas de universos mesclados, onde realidades alternativas se cruzam, criando combinações inesperadas e visualmente incríveis.
+              </Typography>
+              <Typography mt={2} textAlign={"center"}>
+                Se você é fã do estilo visual da série, vai se sentir em casa aqui. Aproveite a viagem!
+              </Typography>
+            </Grid>
+
+          </Grid>
+        </Box>
+        <Box p={"2rem"}>
+          <Grid container>
+            <Grid size={{ md: 6 }}>
+              <Typography textAlign={"center"} variant="h2" fontFamily={"Orbitron, sans-serif"} fontSize={"2rem"} fontWeight={600}>Sobre o Projeto</Typography>
+              <Typography mt={2}>
+                Rick and Morty Enciclopédia é uma aplicação web interativa que reúne informações detalhadas sobre personagens, episódios, localizações e espécies do universo caótico de Rick and Morty. Todos os dados são consumidos em tempo real a partir da Rick and Morty API, apresentados em um layout moderno, responsivo e com efeitos visuais estilizados.
+              </Typography>
+              <Typography mt={2}>
+                Você pode navegar por cards ilustrados dos personagens, ver de onde vieram, onde estão, em quais episódios apareceram — tudo organizado de forma prática e visual. E, para deixar a experiência mais divertida, o projeto ainda conta com um mini-jogo temático que adiciona uma camada extra de interação para os fãs da série.
+              </Typography>
+              <Typography mt={2}>
+                🚀 Se você curtiu o projeto, considere deixar uma ⭐ lá no GitHub — isso ajuda muito a divulgar e valorizar o trabalho!
+              </Typography>
+            </Grid>
+            <Grid size={{ md: 6 }}>
+              <img src="/assets/images/about_side_2.webp" style={{ width: "100%" }} />
+            </Grid>
+          </Grid>
         </Box>
       </Box>
     </React.Fragment >
